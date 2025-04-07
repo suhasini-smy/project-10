@@ -1,21 +1,21 @@
+### Step 1: app.py (Flask + WebSockets backend)
+
 from flask import Flask, render_template
+from flask_socketio import SocketIO, emit
+from chatbot import get_bot_response
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 
 @app.route("/")
-def home():
+def index():
     return render_template("index.html")
 
-@app.route("/about")
-def about():
-    # return("<h2>This is About Page</h2>")
-    return render_template("about.html")
-
-
-@app.route("/contact")
-def contact():   
-    # return("<h3>This is contact page</h3>") 
-    return render_template("contact.html")
+@socketio.on("user_message")
+def handle_user_message(message):
+    response = get_bot_response(message)
+    emit("bot_response", response)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    socketio.run(app, debug=True)
+
